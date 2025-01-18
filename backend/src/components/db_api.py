@@ -4,6 +4,8 @@ from pymongo.server_api import ServerApi
 import os
 from dotenv import load_dotenv
 from pymongo.errors import DuplicateKeyError
+import datetime
+from datetime import timedelta
 
 load_dotenv()
 
@@ -59,6 +61,48 @@ def add_critique(website: str, comment: dict):
     )
     
     return True if result.modified_count == 1 else False
+
+def get_top_10_websites(days: int = 1):
+    """The top 10 trending websites based on the number of critiques in the last 24 hours from the database
+
+    Returns:
+        list: The top 10 websites based on the number of critiques in the last 24 hours.
+    """
+
+    # Calculate the timestamp for 24 hours ago
+    one_day_ago = datetime.datetime.now() - timedelta(days=days)
+
+    pipeline = [
+        # Stage 1: Filter comments within the last 24 hours
+        {
+            "$match": {
+                "comments.time": {"$gte": one_day_ago}
+            }
+        },
+        # Stage 2: Unwind the comments array
+        {"$unwind": "$comments"},
+        # Stage 3: Filter comments again after unwinding
+        {
+            "$match": {
+                "comments.time": {"$gte": one_day_ago}
+            }
+        },
+        # Stage 4: Group by domain and count comments
+        {
+            "$group": {
+                "_id": "$domain",
+                "count": {"$sum": 1}
+            }
+        },
+        # Stage 5: Sort by count in descending order
+        {"$sort": {"count": -1}},
+        # Stage 6: Limit to the top 10
+        {"$limit": 10}
+    ]
+
+    top10Websites = list(db.websites.aggregate(pipeline))
+    return top10Websites
+    
 
 def add_website(domain, rating=0.0, aiSummary="", tags=[], comments=[]):
     document = {

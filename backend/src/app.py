@@ -19,3 +19,8 @@ def get_critique():
 @app.route('/post_critique', methods=['POST'])
 def post_critique():
     return {'success': helper.post_critique(request.json)}
+
+# Get Top 10 Websites API endpoint
+@app.route('/get_top_10_websites')
+def get_top_10_websites():
+    return helper.get_top_10_websites()

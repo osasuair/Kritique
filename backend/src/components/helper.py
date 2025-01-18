@@ -48,6 +48,21 @@ def post_critique(comment: dict) -> bool:
             "time": datetime.datetime.now()
         })
     
+def get_top_10_websites() -> list:
+    """Get the top 10 websites from the database.
+    
+    Returns:
+        list: The top 10 trending websites based on the number of critiques in the last 24 hours.
+    """
+    
+    top10 = db_api.get_top_10_websites(days=7)
+    
+    top10List = []
+    for website in top10:
+        top10List.append(website["_id"])
+        
+    return top10List
+    
 def validate_critique(critique: str) -> bool:
     """Validate a critique.
     
