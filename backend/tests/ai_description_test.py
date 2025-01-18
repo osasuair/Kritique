@@ -33,6 +33,13 @@ def test_summarizer():
     assert summary != ""
     assert len(summary.split()) <= 30
     
+def test_generate_tags_from_website():
+    website = "www.youtube.com"
+    tags = ai_description.generate_tags_from_website(website)
+    
+    assert tags is not None
+    assert len(tags) == 6
+    assert len(set(tags)) == 6
     
 if __name__ == "__main__":
     test_summarizer()
