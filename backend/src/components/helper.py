@@ -1,4 +1,5 @@
 from components import db_api
+import validators
 
 def get_website_critique(website: str) -> dict:
     """Get the critique for a website from the database. 
@@ -71,3 +72,10 @@ def validate_critique(critique: str) -> bool:
         return False
     
     return True
+
+def is_valid_url(url):
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    if validators.url(url):
+        return url
+    return None

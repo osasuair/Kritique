@@ -4,7 +4,6 @@ from pymongo.server_api import ServerApi
 import os
 from dotenv import load_dotenv
 from pymongo.errors import DuplicateKeyError
-import validators
 
 load_dotenv()
 
@@ -56,18 +55,11 @@ def add_critique(website: str, critique: str):
     # Connect to the database and add the critique
     result = db.websites.update_one(
         {"domain": website},
-        {"$push": {"critiques": critique}},
+        {"$push": {"comments": critique}},
         upsert=True
     )
     
     return True if result.modified_count == 1 else False
-
-def is_valid_url(url):
-    if not url.startswith(("http://", "https://")):
-        url = "https://" + url
-    if validators.url(url):
-        return url
-    return None
 
 def add_website(domain, rating=0.0, aiSummary="", tags=[], comments=[]):
     document = {
