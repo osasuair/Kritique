@@ -88,7 +88,3 @@ def generate_tags_from_website(website: str) -> list[str]:
     # 3. Parse the JSON string
     tags = json.loads(json_string)
     return tags
-
-if __name__ == "__main__":
-    test_generate_tags_from_website()
-    print("All tests passed!")

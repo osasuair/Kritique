@@ -26,7 +26,7 @@ def test_summarizer():
     ]
 
     # assert that the summary is less than 30 words
-    summary = ai_description.summarize_comments(comments=comments, website="www.youtube.com")
+    summary = ai_description.summarize_comments(comments=comments, website="youtube.com")
     print(summary)
 
     assert isinstance(summary, str)
@@ -34,7 +34,7 @@ def test_summarizer():
     assert len(summary.split()) <= 30
     
 def test_generate_tags_from_website():
-    website = "www.youtube.com"
+    website = "youtube.com"
     tags = ai_description.generate_tags_from_website(website)
     
     assert tags is not None
@@ -43,3 +43,4 @@ def test_generate_tags_from_website():
     
 if __name__ == "__main__":
     test_summarizer()
+    test_generate_tags_from_website()
