@@ -18,6 +18,4 @@ def get_critique():
 # Post Critique API endpoint to add a critique to the a website's critique
 @app.route('/post_critique', methods=['POST'])
 def post_critique():
-    website = request.json['website']
-    critique = request.json['critique']
-    return helper.post_critique(website, critique)
+    return {'success': helper.post_critique(request.json)}
