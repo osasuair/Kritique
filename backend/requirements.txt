@@ -4,3 +4,4 @@ protobuf==5.29.3
 pymongo==4.10.1
 python-dotenv==1.0.1
 validators==0.34.0
+google-genai==0.5.0
