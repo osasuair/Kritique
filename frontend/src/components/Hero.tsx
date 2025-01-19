@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Trending from "../components/Trending";
 import WebCritique from "./WebCritique";
 
+const url = "https://kritique-deploy.vercel.app";
+
 const options = [
   { value: "www.youtube.com", label: "ww.youtube.com" },
   { value: "www.apple.com", label: "ww.apple.com" },
@@ -57,7 +59,7 @@ const data = {
 
 const Hero = () => {
   const [query, setQuery] = useState<string>(""); // Track user input
-  const [results, setResults] = useState<string[]>([]); // Track API results
+  const [results, setResults] = useState<{ domain: string }[]>([]); // Track API results
   const [loading, setLoading] = useState<boolean>(false); // Loading state
 
   // Debounced function to fetch results from the backend
@@ -70,10 +72,12 @@ const Hero = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `/api/search?query=${encodeURIComponent(query)}`
+          `${url}/get_search_suggestions?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
-        setResults(data.results); // Update with backend results
+        console.log(data);
+        setResults(data); // Update with backend results
+        //console.log(data.results);
       } catch (error) {
         console.error("Error fetching results:", error);
         setResults([]);
@@ -118,9 +122,9 @@ const Hero = () => {
                   <li
                     key={index}
                     className="px-4 py-2 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => setQuery(result)} // Allow user to select a result
+                    onClick={() => setQuery(result.domain)} // Allow user to select a result
                   >
-                    {result}
+                    {result.domain}
                   </li>
                 ))}
               </ul>
