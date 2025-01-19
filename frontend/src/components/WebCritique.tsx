@@ -90,7 +90,7 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
 
       <div>
         <h3 className="m-2 p-2 rounded-md text-white bg-gray-600 text-[20px]">
-          Critiques
+          Kritiques
         </h3>
         <div className="m-2 p-2 ">
           <p className="text-white">Add a new critique</p>
@@ -112,15 +112,24 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
             max={5}
           />
 
-          <button onClick={handlePostCritique}>⬆️</button>
+          <button onClick={handlePostCritique} className="text-[30px]">
+            ⬆️
+          </button>
           {error && <p className="text-red-500 mt-2">{error}</p>}
         </div>
 
-        <ul className="m-2 text-red-700 bg-white text-[20px] font-[700] p-2 rounded-md">
+        <ul className="m-2 text-white bg-gray-600 text-[20px] font-[700] p-2 rounded-md">
           {comments.map((comment, index) => (
-            <li key={index}>
-              {comment.time} - {comment.text || "No comment provided"} -{" "}
-              {comment.rating}
+            <li key={index} className="my-4 border-b-2 border-black">
+              {new Date(comment.time).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}{" "}
+              : {comment.text || "No comment provided"} -{" "}
+              {comment.rating + "💫"}
             </li>
           ))}
         </ul>
