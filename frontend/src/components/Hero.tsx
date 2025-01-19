@@ -165,7 +165,7 @@ const Hero = () => {
           </button>
         </div>
 
-        <Trending />
+        <Trending/>
       </div>
 
       {/* Conditionally render WebCritique if data is available */}
