@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+const url = "https://kritique.vercel.app";
 
 interface Comment {
   rating: number;
@@ -18,6 +19,49 @@ interface WebCritiqueProps {
 
 const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
   const { aiSummary, comments, domain, rating, tags } = data;
+
+  const [newComment, setNewComment] = useState<string>("");
+  const [newRating, setNewRating] = useState<number>(5); // Default rating
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePostCritique = async () => {
+    if (!newComment.trim()) {
+      setError("Comment cannot be empty");
+      return;
+    }
+
+    setError(null); // Clear any existing error
+
+    const critiqueData = {
+      website: domain,
+      critique: newComment,
+      rating: newRating,
+    };
+
+    try {
+      const response = await fetch(`${url}/post_critique`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(critiqueData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Critique posted successfully!");
+
+        // Optionally, you could refresh the comments by refetching data
+        // Or append the new comment locally to `comments`
+      } else {
+        setError("Failed to post critique. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error posting critique:", error);
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
 
   return (
     <div id="review" className="w-[90%]  py-10">
@@ -44,17 +88,43 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
         </div>
       </div>
 
-      <h3 className="m-2 p-2 rounded-md text-red-700 bg-gray-600 text-[20px]">
-        Critiques
-      </h3>
+      <div>
+        <h3 className="m-2 p-2 rounded-md text-white bg-gray-600 text-[20px]">
+          Critiques
+        </h3>
+        <div className="m-2 p-2 ">
+          <p className="text-white">Add a new critique</p>
+          <input
+            type="text"
+            className="rounded-md p-2 mr-2"
+            placeholder="Write your critique..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
 
-      <ul className="m-2 text-red-700 bg-gray-600 text-[20px] font-[700] p-2 rounded-md">
-        {comments.map((comment, index) => (
-          <li key={index}>
-            {comment.time} - {comment.text || "No comment provided"}
-          </li>
-        ))}
-      </ul>
+          <input
+            type="number"
+            className="rounded-md p-2 mr-2"
+            placeholder="Rating (1-5)"
+            value={newRating}
+            onChange={(e) => setNewRating(Number(e.target.value))}
+            min={1}
+            max={5}
+          />
+
+          <button onClick={handlePostCritique}>⬆️</button>
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+        </div>
+
+        <ul className="m-2 text-red-700 bg-white text-[20px] font-[700] p-2 rounded-md">
+          {comments.map((comment, index) => (
+            <li key={index}>
+              {comment.time} - {comment.text || "No comment provided"} -{" "}
+              {comment.rating}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

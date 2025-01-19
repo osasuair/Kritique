@@ -197,7 +197,9 @@ const Hero = () => {
                 ))}
               </ul>
             ) : (
-              <div className="p-4 text-gray-500">No matches</div>
+              <div className="p-4 text-gray-500">
+                It appears there are no matches. Will you like to add a site
+              </div>
             )}
           </div>
 
