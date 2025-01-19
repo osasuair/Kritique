@@ -165,9 +165,12 @@ const Hero = () => {
 
       <div className="w-full h-screen flex flex-col md:flex-row items-center">
         <div className="w-full md:w-2/3 h-[50%] flex flex-col justify-center items-center">
-          <h1 className="m-auto text-red-700 text-[50px] font-sans font-[900]">Kritique✍️</h1>
+          <h1 className="m-auto text-red-700 text-[50px] font-sans font-[900]">
+            Kritique✍️
+          </h1>
           <p className="m-auto font-[400] text-[20px] text-white">
-            Enter a website you'd like to <span className="text-red-700">Kritique!</span>
+            Enter a website you'd like to{" "}
+            <span className="text-red-700">Kritique!</span>
           </p>
           <div className="w-full h-full flex flex-col items-center">
             <input
@@ -193,7 +196,9 @@ const Hero = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="p-4 text-gray-500">No matches</div>
+                <div className="p-4 text-gray-500">
+                  It appears there are no matches. Will you like to add a site
+                </div>
               )}
             </div>
             <button
