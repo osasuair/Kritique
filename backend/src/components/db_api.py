@@ -3,7 +3,7 @@ from pymongo.server_api import ServerApi
 
 import os
 from dotenv import load_dotenv
-from pymongo.errors import DuplicateKeyError
+
 import validators
 
 load_dotenv()
@@ -69,36 +69,11 @@ def is_valid_url(url):
         return url
     return None
 
-def add_website(domain, rating=0.0, aiSummary="", tags=[], comments=[]):
-    document = {
-        "domain": domain,
-        "rating": rating,
-        "aiSummary": aiSummary,
-        "tags": tags,
-        "comments": comments,
-    }
-    try:
-        result = collection.insert_one(document)
-        return {"status": "Success", "document": document}
-    except DuplicateKeyError:
-        duplicate_document = website_exists(domain)
-        return {"status": "Duplicate", "document": duplicate_document}
-    except Exception as e:
-        print(f"Error occurred: {e}")
-        return {"status": "Error", "message": str(e)}
-    
-def handle_user_input(domain):
-    normalized_url = is_valid_url(domain)
-    if not normalized_url:
-        return f"Invalid website URL. Please enter a valid URL."
 
-    # Website already exists check & add website
-    response = add_website(normalized_url)
-    if response["status"] == "Duplicate":
-        print(f"Website already exists in the database: {response['document']}")
-        return f"Proceed to the rating page for {normalized_url}"
-    elif response["status"] == "Success":
-        print(f"New website created in the database: {normalized_url}")
-        return f"Proceed to the rating page for {normalized_url}"
-    else:
-        return f"An error occurred: {response.get('message', 'Unknown error')}"
+    
+def insert_website(website):
+    db.websites.insert_one(website)
+    
+
+def get_search_suggestions(pipeline):
+   return db.websites.aggregate(pipeline)
