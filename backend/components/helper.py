@@ -2,6 +2,7 @@ from components import db_api, ai_description
 from pymongo.errors import DuplicateKeyError
 import validators
 import datetime
+import random
 import requests
 
 def get_website_critique(website: str) -> dict:
@@ -23,7 +24,7 @@ def get_website_critique(website: str) -> dict:
     
     return website_critique
 
-def post_critique(comment: dict) -> bool:
+def post_critique(comment: dict) -> dict:
     """Post a critique for a website to the database.
     
     Args:
@@ -33,23 +34,47 @@ def post_critique(comment: dict) -> bool:
     Returns:
         dict: The critique that was posted.
     """
+    website = comment.get("website", None)
     
     # Pre-check if the website is valid
-    if not is_valid_url(comment['website']):
+    if not is_valid_url(website):
         return None
     
     # Pre-check if the critique is valid
-    if not validate_critique(comment['critique']):
-        return None
-    
-    return db_api.add_critique(
-        comment['website'], 
+    validation_result = ai_description.validate_comment(comment['critique'])
+    if str(validation_result.get("valid", False)).lower() == "false":  # Use .get() for safety
+        return validation_result  # Return the validation result directly
+
+    validation_result = db_api.add_critique(
+        website,
         {
             "text": comment['critique'],
             "rating": comment['rating'],
             "time": datetime.datetime.now()
-        })
+        }
+    )
+    if not validation_result:
+        return {"valid": False}
     
+    comment_and_rating = db_api.get_comments_and_reviews(website)
+    website_rating = comment_and_rating.get("rating", 0)
+    comments = comment_and_rating.get("comments")
+    numRatings = len(comments)
+    
+    # Calculate the new rating
+    newRating = (website_rating * (numRatings-1) + comment['rating']) / numRatings
+    db_api.update_website_rating(website, newRating),
+
+    # Get a random sample of 100 comments or all comments if less than 100
+    random_comments = comments if len(comments) <= 100 else random.sample(comments, 100)
+    comments = [comment["text"] for comment in random_comments]
+    
+    # Update the summary
+    if len(comments) < 6 or numRatings % 5 == 0:
+        new_summary = ai_description.summarize_comments(website, comments)
+        db_api.update_website_summary(website, new_summary)
+    return {"valid": True}  # Indicate successful posting
+
 def get_top_10_websites() -> list:
     """Get the top 10 websites from the database.
     
@@ -147,15 +172,6 @@ def get_search_suggestions(query):
 
     # This convert the cursor to a list of suggestions
     return [{"domain": result["domain"]} for result in cursor]
-
-def is_valid_url(url):
-  if type(url) is not str or str == "":
-      return False
-  if not url.startswith(("http://", "https://")):
-      test_url = "https://" + url
-  if validators.url(test_url):
-      return True
-  return False
 
 def is_valid_url(url):
     # Check for a non-empty string input

@@ -139,9 +139,55 @@ def get_top_10_websites(days: int = 1):
 
     top10Websites = list(db.websites.aggregate(pipeline))
     return top10Websites
+
+def get_comments_and_reviews(website: str):
+    """Get the comments for a website from the database.
     
+    Args:
+        website (str): The website for which to get the comments.
+        
+    Returns:
+        list: A list of comments for the website.
+    """
+    
+    # Get the comments for the website sorted by time
+    comments_reviews = db.websites.find_one({"domain": website}, {"comments.text": 1, "rating": 1, "_id": 0})
+    return comments_reviews
 
+def update_website_rating(website: str, rating: int):
+    """Update the rating for a website in the database.
+    
+    Args:
+        website (str): The website for which to update the rating.
+        rating (int): The new rating to update.
+        
+    Returns:
+        bool: True if the rating was updated, False otherwise.
+    """
+    
+    result = db.websites.update_one(
+        {"domain": website},
+        {"$set": {"rating": rating}}
+    )
 
+    return True if result.modified_count == 1 else False
+
+def update_website_summary(website: str, summary: str):
+    """Update the summary for a website in the database.
+    
+    Args:
+        website (str): The website for which to update the summary.
+        
+    Returns:
+        bool: True if the summary was updated, False otherwise.
+    """
+    
+    result = db.websites.update_one(
+        {"domain": website},
+        {"$set": {"aiSummary": summary}}
+    )
+
+    return True if result.modified_count == 1 else False
     
 def insert_website(website):
     db.websites.insert_one(website)

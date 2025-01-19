@@ -2,63 +2,66 @@ import { useState, useEffect } from "react";
 import Trending from "../components/Trending";
 import WebCritique from "./WebCritique";
 
+const url = "https://kritique-deploy.vercel.app";
+
 const options = [
   { value: "www.youtube.com", label: "ww.youtube.com" },
   { value: "www.apple.com", label: "ww.apple.com" },
   { value: "www.meta.com", label: "ww.meta.com" },
 ];
 
-const data = {
-  aiSummary:
-    "Users have mixed opinions on youtube.com. Some find it visually appealing, helpful, and informative, while others cite errors, crashes, slow performance, poor navigation, and accessibility issues.",
-  comments: [
-    {
-      rating: 4,
-      text: "",
-      time: "Sat, 01 Jan 2000 05:00:00 GMT",
-    },
-    {
-      rating: 4,
-      text: "This website has a great design, but the navigation could be improved.",
-      time: "Sat, 18 Jan 2025 18:06:26 GMT",
-    },
-    {
-      rating: 4,
-      text: "This website has a great design, but the navigation could be improved.",
-      time: "Sat, 18 Jan 2025 18:06:26 GMT",
-    },
-    {
-      rating: 4,
-      text: "This website has a great design, but the navigation could be improved.",
-      time: "Sat, 18 Jan 2025 18:06:26 GMT",
-    },
-    {
-      rating: 4,
-      text: "This website has a great design, but the navigation could be improved.",
-      time: "Sat, 18 Jan 2025 18:06:26 GMT",
-    },
-    {
-      rating: 4,
-      text: "This website has a great design, but the navigation could be improved.",
-      time: "Sat, 18 Jan 2025 18:06:26 GMT",
-    },
-  ],
-  domain: "youtube.com",
-  rating: 4.3,
-  tags: [
-    "video sharing",
-    "content creation",
-    "social media",
-    "entertainment",
-    "educational resource",
-    "marketing platform",
-  ],
-};
+// const data = {
+//   aiSummary:
+//     "Users have mixed opinions on youtube.com. Some find it visually appealing, helpful, and informative, while others cite errors, crashes, slow performance, poor navigation, and accessibility issues.",
+//   comments: [
+//     {
+//       rating: 4,
+//       text: "",
+//       time: "Sat, 01 Jan 2000 05:00:00 GMT",
+//     },
+//     {
+//       rating: 4,
+//       text: "This website has a great design, but the navigation could be improved.",
+//       time: "Sat, 18 Jan 2025 18:06:26 GMT",
+//     },
+//     {
+//       rating: 4,
+//       text: "This website has a great design, but the navigation could be improved.",
+//       time: "Sat, 18 Jan 2025 18:06:26 GMT",
+//     },
+//     {
+//       rating: 4,
+//       text: "This website has a great design, but the navigation could be improved.",
+//       time: "Sat, 18 Jan 2025 18:06:26 GMT",
+//     },
+//     {
+//       rating: 4,
+//       text: "This website has a great design, but the navigation could be improved.",
+//       time: "Sat, 18 Jan 2025 18:06:26 GMT",
+//     },
+//     {
+//       rating: 4,
+//       text: "This website has a great design, but the navigation could be improved.",
+//       time: "Sat, 18 Jan 2025 18:06:26 GMT",
+//     },
+//   ],
+//   domain: "youtube.com",
+//   rating: 4.3,
+//   tags: [
+//     "video sharing",
+//     "content creation",
+//     "social media",
+//     "entertainment",
+//     "educational resource",
+//     "marketing platform",
+//   ],
+// };
 
 const Hero = () => {
   const [query, setQuery] = useState<string>(""); // Track user input
-  const [results, setResults] = useState<string[]>([]); // Track API results
+  const [results, setResults] = useState<{ domain: string }[]>([]); // Track API results
   const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [data, setData] = useState<any>(null); // Store the critique data
 
   // Debounced function to fetch results from the backend
   useEffect(() => {
@@ -70,10 +73,12 @@ const Hero = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `/api/search?query=${encodeURIComponent(query)}`
+          `${url}/get_search_suggestions?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
-        setResults(data.results); // Update with backend results
+        console.log(data);
+        setResults(data); // Update with backend results
+        //console.log(data.results);
       } catch (error) {
         console.error("Error fetching results:", error);
         setResults([]);
@@ -86,6 +91,29 @@ const Hero = () => {
     const debounce = setTimeout(fetchResults, 300); // Wait 300ms after user stops typing
     return () => clearTimeout(debounce); // Clear timeout on cleanup or input change
   }, [query]);
+
+  // Fetch critique data for a selected domain
+  const fetchCritique = async (website: string) => {
+    try {
+      const response = await fetch(
+        `${url}/get_website_critique?website=${encodeURIComponent(website)}`
+      );
+      const critiqueData = await response.json();
+      setData(critiqueData); // Store the fetched data in the `data` variable
+      console.log("Fetched critique data:", critiqueData);
+    } catch (error) {
+      console.error("Error fetching critique data:", error);
+      setData(null); // Clear data in case of error
+    }
+  };
+
+  // Scroll to the WebCritique component when data is updated
+  useEffect(() => {
+    if (data) {
+      const critiqueElement = document.getElementById("review");
+      critiqueElement?.scrollIntoView({ behavior: "smooth" }); // Smooth scroll to WebCritique section
+    }
+  }, [data]);
 
   return (
     <div className="w-full  flex-col   items-center ">
@@ -118,9 +146,9 @@ const Hero = () => {
                   <li
                     key={index}
                     className="px-4 py-2 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => setQuery(result)} // Allow user to select a result
+                    onClick={() => fetchCritique(result.domain)} // Fetch critique on click
                   >
-                    {result}
+                    {result.domain}
                   </li>
                 ))}
               </ul>
@@ -140,7 +168,8 @@ const Hero = () => {
         <Trending />
       </div>
 
-      <WebCritique data={data} />
+      {/* Conditionally render WebCritique if data is available */}
+      {data ? <WebCritique data={data[0]} /> : null}
     </div>
   );
 };

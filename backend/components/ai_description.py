@@ -32,8 +32,14 @@ def summarize_comments(website: str, comments: list[str]) -> str:
     comments_text = "{" + ", ".join(comments) + "}"
     
     # Define the prompt for the AI
-    prompt = f"Summarize the following comments for the website [{website}] in the third person with a limit of 30 words: {comments_text}"
-    
+    prompt = f"""
+    Summarize the following user comments about the website [{website}] in a concise and informative way, limited to 30 words. 
+
+    Focus on the main points of the feedback, and present the summary in the third person.
+
+    Here are the comments:
+    {comments_text}
+    """    
     # Call the GenAI API to get the summary
     # response = client.models.generate_content(
     #     model=MODEL, 
@@ -55,6 +61,62 @@ def summarize_comments(website: str, comments: list[str]) -> str:
     )
     
     return chat_completion.choices[0].message.content
+
+def validate_comment(comment: str) -> bool:
+    """Validates a comment to check if it is appropriate and relevant.
+
+    Args:
+        comment (str): The comment to validate.
+
+    Returns:
+        bool: True if the comment is valid, False otherwise.
+    """
+    
+    # Define the prompt for the AI
+    prompt = f"""
+    Analyze the following comment and determine if it violates any of the following rules:
+    {comment}
+
+    1. **No Profanity:** The comment must not contain any swear words or expletives.
+    2. **Respectful Language:** The comment must not be offensive, discriminatory, or hateful towards any group or individual based on their background, identity, or beliefs.
+    3. **Negative Responses:** The comment is allowed and will often express criticism or negative feedback, if it doesn't violate the other rules.
+    
+    If the comment violates any of these rules, return a JSON object like this: 
+    {{"valid": false, "reason": "<A concise explanation of why the comment is invalid>"}}
+
+    If the comment is acceptable, return a JSON object like this:
+    {{"valid": true, "reason": "The comment is valid"}}
+    
+    Do not include any additional information in the response.
+
+    Important: Only flag comments that clearly break the rules. Err on the side of allowing comments if they are borderline. 
+    """
+        
+    # Call the GenAI API to get the validation
+    chat_completion = groqClient.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            }
+        ],
+        model="gemma2-9b-it"
+    )
+    
+    response = chat_completion.choices[0].message.content
+    print(response)
+    # 1. Find the indices of the first and last square brackets
+    first_bracket = response.find('{')
+    last_bracket = response.rfind('}')
+
+    # 2. Splice the string to include the brackets
+    json_string = response[first_bracket : last_bracket + 1]
+
+    # 3. Parse the JSON string
+    json_res = json.loads(json_string)
+    
+    # Check if the response contains the word "valid"
+    return json_res
 
 def generate_tags_from_website(website: str) -> list[str]:
     """Generates relevant word-tags describing the purpose of a website using an AI model.
