@@ -2,7 +2,9 @@ import Hero from "./components/Hero";
 
 function App() {
   return (
-    <div className="w-full bg-gradient-to-r from-gray-700 to-gray-950">
+
+    // dark slate radial gradient to black
+    <div className="w-full b bg-slate-900">
       <Hero />
     </div>
   );
