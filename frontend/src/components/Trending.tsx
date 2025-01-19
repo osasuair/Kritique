@@ -1,6 +1,6 @@
 const Trending = ({ trends, fetchCritique}: { trends: string[], fetchCritique: (website: string) => void }) => {
   return (
-    <div className="m-auto w-auto h-auto text-gray-100 leading-7 rounded-[20px] bg-slate-700 p-5">
+    <div className="m-auto w-auto h-auto text-gray-100 leading-7 rounded-[20px] bg-slate-700 p-5 shadow-xl shadow-black">
       <h2 className="text-[20px] text-white font-bold">Trending💫</h2>
       <ul>
         {trends.length > 0 ? (
