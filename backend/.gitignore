@@ -1,3 +1,4 @@
 .flaskenv
 *__pycache__*
+/.vercel
 addWebsiteTest.py

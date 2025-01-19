@@ -73,29 +73,67 @@ def get_top_10_websites(days: int = 1):
     one_day_ago = datetime.datetime.now() - timedelta(days=days)
 
     pipeline = [
-        # Stage 1: Filter comments within the last 24 hours
+        # Stage 1: Facet the results into two groups: recent and overall
         {
-            "$match": {
-                "comments.time": {"$gte": one_day_ago}
+            "$facet": {
+                "recent": [
+                    # Stage 1a: Unwind the comments array
+                    {"$unwind": "$comments"},
+                    # Stage 1b: Filter comments within the last 24 hours
+                    {
+                        "$match": {
+                            "comments.time": {"$gte": one_day_ago}
+                        }
+                    },
+                    # Stage 1c: Group by domain and count comments
+                    {
+                        "$group": {
+                            "_id": "$domain",
+                            "count": {"$sum": 1}
+                        }
+                    },
+                    # Stage 1d: Sort by count in descending order
+                    {"$sort": {"count": -1}},
+                    # Stage 1e: Limit to the top 10
+                    {"$limit": 10}
+                ],
+                "overall": [
+                    # Stage 2a: Unwind the comments array
+                    {"$unwind": "$comments"},
+                    # Stage 2b: Group by domain and count comments
+                    {
+                        "$group": {
+                            "_id": "$domain",
+                            "count": {"$sum": 1}
+                        }
+                    },
+                    # Stage 2c: Sort by count in descending order
+                    {"$sort": {"count": -1}},
+                    # Stage 2d: Limit to the top 10
+                    {"$limit": 10}
+                ]
             }
         },
-        # Stage 2: Unwind the comments array
-        {"$unwind": "$comments"},
-        # Stage 3: Filter comments again after unwinding
+        # Stage 3: Project the results
         {
-            "$match": {
-                "comments.time": {"$gte": one_day_ago}
+            "$project": {
+                "top10": {
+                    # Stage 3a: Conditionally choose the results
+                    "$cond": [
+                        {"$gte": [{"$size": "$recent"}, 10]},  # Check if there are at least 10 recent websites
+                        "$recent",  # If yes, use the recent results
+                        {
+                            # If no, use the overall results and remove any that are in the recent results
+                            "$setDifference": ["$overall", "$recent"]
+                        }
+                    ]
+                }
             }
         },
-        # Stage 4: Group by domain and count comments
-        {
-            "$group": {
-                "_id": "$domain",
-                "count": {"$sum": 1}
-            }
-        },
-        # Stage 5: Sort by count in descending order
-        {"$sort": {"count": -1}},
+        # Stage 4: Unwind the top10 array
+        {"$unwind": "$top10"},
+        # Stage 5: Replace the root with the top10 array
+        {"$replaceRoot": {"newRoot": "$top10"}},
         # Stage 6: Limit to the top 10
         {"$limit": 10}
     ]

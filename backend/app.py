@@ -1,6 +1,6 @@
 import time
 from flask import Flask, request
-from components import helper, get_website_critique, post_critique, get_search_suggestions, add_website
+from components import helper
 
 app = Flask(__name__)
 
@@ -28,10 +28,10 @@ def get_top_10_websites():
 @app.route('/add_website')
 def add_site():
     domain = request.args.get('domain')
-    return add_website(domain)
+    return helper.add_website(domain)
 
 # Get Critique API endpoint with a param of the query
 @app.route('/get_search_suggestions')
 def getsSuggestions():
     query = request.args.get('query')
-    return get_search_suggestions(query)
+    return helper.get_search_suggestions(query)
