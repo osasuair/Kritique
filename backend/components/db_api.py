@@ -3,7 +3,6 @@ from pymongo.server_api import ServerApi
 
 import os
 from dotenv import load_dotenv
-from pymongo.errors import DuplicateKeyError
 import datetime
 from datetime import timedelta
 
@@ -193,6 +192,17 @@ def update_website_summary(website: str, summary: str):
 def insert_website(website):
     db.websites.insert_one(website)
     
-
 def get_search_suggestions(pipeline):
    return db.websites.aggregate(pipeline)
+
+def find_website(query):
+    """
+    Searches the database for a document that matches the query.
+
+    Parameters:
+        query (dict): The query to search for (e.g., {"domain": "example.com"}).
+
+    Returns:
+        dict: The matching document if found, or None if no match exists.
+    """
+    return db.websites.find_one(query)
