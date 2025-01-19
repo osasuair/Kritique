@@ -160,7 +160,7 @@ const Hero = () => {
   }, [data]);
 
   return (
-    <div className="w-full flex-col items-center ">
+    <div className="w-full h-full flex-col items-center ">
       
 
       <div className="w-full h-screen flex flex-col md:flex-row items-center">
@@ -171,7 +171,7 @@ const Hero = () => {
           </p>
           <div className="w-full h-full flex flex-col items-center">
             <input
-              className="mx-auto w-[80%] border-spacing-[10px] border-red-700 rounded-t-md p-2"
+              className="mx-auto w-[80%] mt-10 border-spacing-[10px] border-red-700 rounded-t-md p-2"
               type="text"
               placeholder="Search for a website..."
               value={query}
@@ -197,7 +197,7 @@ const Hero = () => {
               )}
             </div>
             <button
-              className="text-white bg-red-700 rounded-md p-2 m-auto"
+              className="text-white bg-red-700 rounded-md mt-5 p-2 m-auto"
               onClick={() => {
                 if (results.length === 0) {
                   addWebsite(query); // If no results, add website
@@ -215,8 +215,10 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Conditionally render WebCritique if data is available */}
-      {data ? <WebCritique data={data[0]} /> : null}
+      <div className={`w-full ${data ? "h-screen" : ""} flex flex-col items-center`}>
+        {/* Conditionally render WebCritique if data is available */}
+        {data ? <WebCritique data={data[0]} /> : null}
+      </div>
     </div>
   );
 };
