@@ -20,28 +20,35 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
   const { aiSummary, comments, domain, rating, tags } = data;
 
   return (
-    <div id="review" className="w-[90%]  py-10">
-      <h1 className="m-2 text-red-700 text-[50px] font-sans font-[900] border-b-4">
+    <div id="review" className="h-full  py-10">
+      <h1 className="m-2 text-red-500 text-[50px] font-sans font-[900] border-b-4">
         {domain}
       </h1>
 
-      <div className="mb-16 flex flex-row m-auto justify-between">
-        <p className="h-[50%] bg-gray-600 text-red-700 text-[50px] font-[700] p-2 rounded-md mx-2">
-          {rating.toFixed(1)}
-        </p>
-        <p className=" h-[50%] bg-gray-600 text-red-700 text-[15px] font-[700] p-2 rounded-md mx-2">
-          AI Review:{aiSummary}
-        </p>
-        <div className="flex flex-col w-[18%]  mx-2 text-center bg-gray-600 rounded-md p-2">
-          <p className="text-white  font-[700]">Tags</p>
-          <ul className=" text-red-700 text-[10px] font-[700] ">
-            {tags.map((tag, index) => (
-              <li className="bg-white m-2 p-2 rounded-xl" key={index}>
-                {tag}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="mb-16 flex flex-col m-auto justify-between w-full h-full">
+          <div className="flex flex-row text-center rounded-md p-2 h-full">
+            <div className="h-full">
+              <p className="h-full py-0 px-2 bg-gray-600 text-red-500 text-[50px] font-[700] rounded-md mx-2">
+                {rating.toFixed(1)}
+              </p>
+            </div>
+            <div>
+              <p className="h-full min-h-full py-auto px-2 bg-gray-600 text-white text-[15px] font-[700] rounded-md mx-2">
+                AI Review:{aiSummary}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col w-90 mx-4 text-center bg-gray-600 items-start rounded-md mt-1 pt-1 pb-2 px-2">
+            <p className="text-white font-[600]">Tags:</p>
+            <div className="flex flex-row flex-wrap text-sm items-start">
+              {tags.map((tag, index) => (
+                <p className="bg-white m-2 p-2 rounded-xl" key={index}>
+                  {tag}
+                </p>
+              ))}
+            </div>
+          </div>
       </div>
 
       <h3 className="m-2 p-2 rounded-md text-red-700 bg-gray-600 text-[20px]">
