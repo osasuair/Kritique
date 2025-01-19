@@ -112,3 +112,15 @@ def insert_website(website):
 
 def get_search_suggestions(pipeline):
    return db.websites.aggregate(pipeline)
+
+def find_website(query):
+    """
+    Searches the database for a document that matches the query.
+
+    Parameters:
+        query (dict): The query to search for (e.g., {"domain": "example.com"}).
+
+    Returns:
+        dict: The matching document if found, or None if no match exists.
+    """
+    return db.websites.find_one(query)
