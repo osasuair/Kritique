@@ -25,17 +25,13 @@ def post_critique():
 def get_top_10_websites():
     return helper.get_top_10_websites()
 
-@app.route('/add_website', methods=['POST'])
+@app.route('/add_website')
 def add_site():
-    data = request.json
-    if not data or "domain" not in data:
-        return {"status": "Invalid data"}, 400
-    domain = data["domain"]
-    
-    return helper.add_website(domain)
+    domain = request.args.get('domain')
+    return add_website(domain)
 
 # Get Critique API endpoint with a param of the query
 @app.route('/get_search_suggestions')
 def getsSuggestions():
     query = request.args.get('query')
-    return helper.get_search_suggestions(query)
+    return get_search_suggestions(query)

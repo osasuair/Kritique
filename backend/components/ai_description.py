@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 from google import genai
 from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
+from groq import Groq
+
 import json
 
 load_dotenv()
@@ -12,6 +14,8 @@ MODEL = 'gemini-2.0-flash-exp'
 google_search_tool = Tool(
     google_search = GoogleSearch()
 )
+
+groqClient = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def summarize_comments(website: str, comments: list[str]) -> str:
     """Summarizes a list of comments about a website using an AI model.
@@ -31,16 +35,26 @@ def summarize_comments(website: str, comments: list[str]) -> str:
     prompt = f"Summarize the following comments for the website [{website}] in the third person with a limit of 30 words: {comments_text}"
     
     # Call the GenAI API to get the summary
-    response = client.models.generate_content(
-        model=MODEL, 
-        contents=prompt, 
-        config=GenerateContentConfig(
-            temperature=0.7,
-            max_output_tokens=100
-        )
+    # response = client.models.generate_content(
+    #     model=MODEL, 
+    #     contents=prompt, 
+    #     config=GenerateContentConfig(
+    #         temperature=0.7,
+    #         max_output_tokens=100
+    #     )
+    # )
+    
+    chat_completion = groqClient.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            }
+        ],
+        model="gemma2-9b-it"
     )
     
-    return response.text
+    return chat_completion.choices[0].message.content
 
 def generate_tags_from_website(website: str) -> list[str]:
     """Generates relevant word-tags describing the purpose of a website using an AI model.

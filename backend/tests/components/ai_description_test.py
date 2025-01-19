@@ -1,4 +1,4 @@
-from src.components import ai_description
+from backend.components import ai_description
 
 def test_summarizer():
     # Example usage
