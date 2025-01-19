@@ -1,4 +1,5 @@
-from components import db_api
+from components import db_api, ai_description
+from pymongo.errors import DuplicateKeyError
 import validators
 import datetime
 
@@ -79,11 +80,71 @@ def validate_critique(critique: str) -> bool:
     
     return True
 
+def add_website(domain):
+    document = {
+        "domain": domain,
+        "rating" : 0.0,
+        "aiSummary": ai_description.summarize_comments(domain, ai_description.generate_tags_from_website(domain)),
+        "tags": ai_description.generate_tags_from_website(domain),
+        "comments": "comments",
+    }
+    try:
+        db_api.insert_website(document)
+        print(f"New website created in the database: {domain}", "Go to Rating Page")
+        return {"status": "Success"}
+    except DuplicateKeyError:
+        print(f"Website already exists in the database")
+        return {"status": "Duplicate"}
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        # return {"status": "Error", "message": str(e)}
+        return {"status": "Error:", "message": str(e)}
+    
+def handle_user_input(domain):
+    normalized_url = db_api.is_valid_url(domain)
+    if not normalized_url:
+        return f"Invalid website URL. Please enter a valid URL."
+
+    # Website already exists check & add website
+    response = add_website(normalized_url)
+    if response["status"] == "Duplicate":
+        print(f"Website already exists in the database: {response['document']}")
+        return f"Proceed to the rating page for {normalized_url}"
+    elif response["status"] == "Success":
+        print(f"New website created in the database: {normalized_url}")
+        return f"Proceed to the rating page for {normalized_url}"
+    else:
+        return f"An error occurred: {response.get('message', 'Unknown error')}"
+    
+def get_search_suggestions(query):
+    pipeline = [
+        {
+            "$search": {
+                "index": "default",  
+                "autocomplete": {
+                    "query": query,  
+                    "path": "domain",  
+                    "fuzzy": {         
+                        "maxEdits": 1  # Allow up to 2 character changes
+                    }
+                }
+            }
+        },
+        {
+            "$limit": 5 
+        }
+    ]
+    
+    cursor = db_api.get_search_suggestions(pipeline)
+
+    # This convert the cursor to a list of suggestions
+    return [{"domain": result["domain"]} for result in cursor]
+
 def is_valid_url(url):
-    if type(url) is not str or str == "":
-        return False
-    if not url.startswith(("http://", "https://")):
-        test_url = "https://" + url
-    if validators.url(test_url):
-        return True
-    return False
+  if type(url) is not str or str == "":
+      return False
+  if not url.startswith(("http://", "https://")):
+      test_url = "https://" + url
+  if validators.url(test_url):
+      return True
+  return False
