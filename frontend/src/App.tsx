@@ -4,8 +4,7 @@ function App() {
 
   return (
 
-    // dark slate radial gradient to black
-    <div className="w-full b" style={{background: "radial-gradient(circle, #2c3e50, #000000)"}}>
+    <div className="w-full bg-gradient-to-b from-[#2c3e50] to-[#000000]">
       <Hero />
     </div>
   );

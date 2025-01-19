@@ -164,7 +164,7 @@ const Hero = () => {
     <div className="w-full h-full flex-col items-center ">
       
 
-      <div className="w-full h-screen flex flex-col md:flex-row items-center">
+      <div className="w-full h-screen flex flex-col md:flex-row items-center" style={{background: "radial-gradient(circle, #2c3e50, #000000)"}}>
         <div className="w-full md:w-2/3 h-[50%] flex flex-col justify-center items-center">
           <div className="flex flex-row items-center">
             <h1 className="m-auto text-red-600 text-[50px] font-sans font-[900] inline-block">
@@ -178,7 +178,7 @@ const Hero = () => {
           </p>
           <div className="w-full h-full flex flex-col items-center ">
             <input
-              className="mx-auto w-[80%] mt-10 border-spacing-[10px] shadow-xl shadow-black border-red-700 rounded-t-md p-2 "
+              className="mx-auto w-[80%] mt-10 border-spacing-[10px] bg-white shadow-xl shadow-black border-red-700 rounded-t-md p-2 "
               type="text"
               placeholder="Search for a website..."
               value={query}
@@ -206,7 +206,8 @@ const Hero = () => {
               )}
             </div>
             <button
-              className="text-white bg-red-700 rounded-md mt-5 p-2 m-auto"
+              className={`text-white ${results.length > 0 ? "bg-red-700 hover:bg-red-800": "bg-gray-500 cursor-not-allowed"} rounded-md mt-5 p-2 m-auto`}
+              disabled={query.length === 0}
               onClick={() => {
                 if (results.length === 0) {
                   addWebsite(query); // If no results, add website
@@ -215,16 +216,17 @@ const Hero = () => {
                 }
               }}
             >
-              {adding ? "Adding..." : "Search"}
+              {adding ? "Adding..." : "Add Website"}
             </button>
           </div>
         </div>
         <div className="w-10/12 md:w-3/12 m-5 mx-auto">
-          <Trending trends={trends} />
+          <Trending trends={trends} fetchCritique={fetchCritique} />
         </div>
       </div>
 
-      <div className={`w-full ${data ? "h-screen" : ""} flex flex-col items-center`}>
+{/* from #2c3e50, #000000)"}}> */}
+      <div className={`w-full ${data ? "min-h-screen" : ""} flex flex-col items-center`}>
         {/* Conditionally render WebCritique if data is available */}
         {data ? <WebCritique data={data[0]} /> : null}
       </div>
