@@ -1,8 +1,10 @@
 import Hero from "./components/Hero";
 
 function App() {
+
   return (
-    <div className="w-full bg-gradient-to-r from-gray-700 to-gray-950">
+
+    <div className="w-full bg-gradient-to-b from-[#2c3e50] to-[#000000]">
       <Hero />
     </div>
   );

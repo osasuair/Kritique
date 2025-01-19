@@ -17,10 +17,12 @@ def get_website_critique(website: str) -> dict:
     """
     
     # Pre-check if the website is valid
-    if not is_valid_url(website):
-        return None
+    if website is None or len(website) <= 1:
+        return "Invalid URL", 400
     
     website_critique = db_api.get_website_critique(website)
+    if website_critique is None:
+        return "Website not found.", 404
     
     return website_critique
 
@@ -37,7 +39,7 @@ def post_critique(comment: dict) -> dict:
     
     # Pre-check if the website is valid
     if not is_valid_url(website):
-        return None
+        return "Invalid URL", 400
     
     # Pre-check if the critique is valid
     validation_result = ai_description.validate_comment(comment['critique'])
@@ -184,7 +186,6 @@ def is_valid_url(url):
     # Check for a non-empty string input
     if not isinstance(url, str) or url.strip() == "":
         return False
-    print("blahhh")
 
     # Normalize the URL
     if not url.__contains__("://"):
@@ -194,10 +195,10 @@ def is_valid_url(url):
     if not validators.url(temp_url, may_have_port=False):
         return False
 
-    print("blahh blahhh")
     # Check if the URL is reachable
     try:
         response = requests.head(temp_url, timeout=5)
+        print(response)
         return response.status_code < 400
     except requests.RequestException:
         return False
