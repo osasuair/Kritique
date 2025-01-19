@@ -4,11 +4,11 @@ import WebCritique from "./WebCritique";
 
 const url = "https://kritique.vercel.app";
 
-const options = [
-  { value: "www.youtube.com", label: "ww.youtube.com" },
-  { value: "www.apple.com", label: "ww.apple.com" },
-  { value: "www.meta.com", label: "ww.meta.com" },
-];
+// const options = [
+//   { value: "www.youtube.com", label: "ww.youtube.com" },
+//   { value: "www.apple.com", label: "ww.apple.com" },
+//   { value: "www.meta.com", label: "ww.meta.com" },
+// ];
 
 // const data = {
 //   aiSummary:
