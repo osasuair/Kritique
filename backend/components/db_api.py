@@ -3,7 +3,6 @@ from pymongo.server_api import ServerApi
 
 import os
 from dotenv import load_dotenv
-from pymongo.errors import DuplicateKeyError
 import datetime
 from datetime import timedelta
 
@@ -70,83 +69,116 @@ def get_top_10_websites(days: int = 1):
     """
 
     # Calculate the timestamp for 24 hours ago
-    one_day_ago = datetime.datetime.now() - timedelta(days=days)
+    past_date = datetime.datetime.now() - timedelta(days=days)
 
     pipeline = [
-        # Stage 1: Facet the results into two groups: recent and overall
+        # Stage 1: Unwind comments, preserving nulls and empty arrays
         {
-            "$facet": {
-                "recent": [
-                    # Stage 1a: Unwind the comments array
-                    {"$unwind": "$comments"},
-                    # Stage 1b: Filter comments within the last 24 hours
-                    {
-                        "$match": {
-                            "comments.time": {"$gte": one_day_ago}
-                        }
-                    },
-                    # Stage 1c: Group by domain and count comments
-                    {
-                        "$group": {
-                            "_id": "$domain",
-                            "count": {"$sum": 1}
-                        }
-                    },
-                    # Stage 1d: Sort by count in descending order
-                    {"$sort": {"count": -1}},
-                    # Stage 1e: Limit to the top 10
-                    {"$limit": 10}
-                ],
-                "overall": [
-                    # Stage 2a: Unwind the comments array
-                    {"$unwind": "$comments"},
-                    # Stage 2b: Group by domain and count comments
-                    {
-                        "$group": {
-                            "_id": "$domain",
-                            "count": {"$sum": 1}
-                        }
-                    },
-                    # Stage 2c: Sort by count in descending order
-                    {"$sort": {"count": -1}},
-                    # Stage 2d: Limit to the top 10
-                    {"$limit": 10}
-                ]
+            "$unwind": {
+                "path": "$comments",
+                "preserveNullAndEmptyArrays": True
             }
         },
-        # Stage 3: Project the results
+        # Stage 2: Group by domain to count all comments in the last X days
+        {
+            "$group": {
+                "_id": "$domain",
+                "recent_count": {
+                    "$sum": {
+                        "$cond": [
+                            {"$gte": ["$comments.time", past_date]},
+                            1,
+                            0
+                        ]
+                    }
+                },
+                "total_count": {"$sum": 1}  # Count all comments, even for empty arrays
+            }
+        },
+        # Stage 3: Sort by the number of recent comments in descending order
+        {
+            "$sort": {"recent_count": -1, "total_count": -1}
+        },
+        # Stage 4: Limit to top 10 domains
+        {
+            "$limit": 10
+        },
+        # Stage 5: Project the fields to return
         {
             "$project": {
-                "top10": {
-                    # Stage 3a: Conditionally choose the results
-                    "$cond": [
-                        {"$gte": [{"$size": "$recent"}, 10]},  # Check if there are at least 10 recent websites
-                        "$recent",  # If yes, use the recent results
-                        {
-                            # If no, use the overall results and remove any that are in the recent results
-                            "$setDifference": ["$overall", "$recent"]
-                        }
-                    ]
-                }
+                "domain": "$_id",
+                "recent_count": 1,
+                "total_count": 1
             }
-        },
-        # Stage 4: Unwind the top10 array
-        {"$unwind": "$top10"},
-        # Stage 5: Replace the root with the top10 array
-        {"$replaceRoot": {"newRoot": "$top10"}},
-        # Stage 6: Limit to the top 10
-        {"$limit": 10}
+        }
     ]
 
     top10Websites = list(db.websites.aggregate(pipeline))
     return top10Websites
+
+def get_comments_and_reviews(website: str):
+    """Get the comments for a website from the database.
     
+    Args:
+        website (str): The website for which to get the comments.
+        
+    Returns:
+        list: A list of comments for the website.
+    """
+    
+    # Get the comments for the website sorted by time
+    comments_reviews = db.websites.find_one({"domain": website}, {"comments.text": 1, "rating": 1, "_id": 0})
+    return comments_reviews
 
+def update_website_rating(website: str, rating: int):
+    """Update the rating for a website in the database.
+    
+    Args:
+        website (str): The website for which to update the rating.
+        rating (int): The new rating to update.
+        
+    Returns:
+        bool: True if the rating was updated, False otherwise.
+    """
+    
+    result = db.websites.update_one(
+        {"domain": website},
+        {"$set": {"rating": rating}}
+    )
 
+    return True if result.modified_count == 1 else False
+
+def update_website_summary(website: str, summary: str):
+    """Update the summary for a website in the database.
+    
+    Args:
+        website (str): The website for which to update the summary.
+        
+    Returns:
+        bool: True if the summary was updated, False otherwise.
+    """
+    
+    result = db.websites.update_one(
+        {"domain": website},
+        {"$set": {"aiSummary": summary}}
+    )
+
+    return True if result.modified_count == 1 else False
     
 def insert_website(website):
     db.websites.insert_one(website)
     
-
 def get_search_suggestions(pipeline):
    return db.websites.aggregate(pipeline)
+
+def find_website(query):
+    """
+    Searches the database for a document that matches the query.
+
+    Parameters:
+        query (dict): The query to search for (e.g., {"domain": "example.com"}).
+
+    Returns:
+        dict: The matching document if found, or None if no match exists.
+    """
+    return db.websites.find_one(query)

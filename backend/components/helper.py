@@ -2,6 +2,8 @@ from components import db_api, ai_description
 from pymongo.errors import DuplicateKeyError
 import validators
 import datetime
+import random
+import requests
 
 def get_website_critique(website: str) -> dict:
     """Get the critique for a website from the database. 
@@ -22,7 +24,7 @@ def get_website_critique(website: str) -> dict:
     
     return website_critique
 
-def post_critique(comment: dict) -> bool:
+def post_critique(comment: dict) -> dict:
     """Post a critique for a website to the database.
     
     Args:
@@ -32,23 +34,47 @@ def post_critique(comment: dict) -> bool:
     Returns:
         dict: The critique that was posted.
     """
+    website = comment.get("website", None)
     
     # Pre-check if the website is valid
-    if not is_valid_url(comment['website']):
+    if not is_valid_url(website):
         return None
     
     # Pre-check if the critique is valid
-    if not validate_critique(comment['critique']):
-        return None
-    
-    return db_api.add_critique(
-        comment['website'], 
+    validation_result = ai_description.validate_comment(comment['critique'])
+    if str(validation_result.get("valid", False)).lower() == "false":  # Use .get() for safety
+        return validation_result  # Return the validation result directly
+
+    validation_result = db_api.add_critique(
+        website,
         {
             "text": comment['critique'],
             "rating": comment['rating'],
             "time": datetime.datetime.now()
-        })
+        }
+    )
+    if not validation_result:
+        return {"valid": False}
     
+    comment_and_rating = db_api.get_comments_and_reviews(website)
+    website_rating = comment_and_rating.get("rating", 0)
+    comments = comment_and_rating.get("comments")
+    numRatings = len(comments)
+    
+    # Calculate the new rating
+    newRating = (website_rating * (numRatings-1) + comment['rating']) / numRatings
+    db_api.update_website_rating(website, newRating),
+
+    # Get a random sample of 100 comments or all comments if less than 100
+    random_comments = comments if len(comments) <= 100 else random.sample(comments, 100)
+    comments = [comment["text"] for comment in random_comments]
+    
+    # Update the summary
+    if len(comments) < 6 or numRatings % 5 == 0:
+        new_summary = ai_description.summarize_comments(website, comments)
+        db_api.update_website_summary(website, new_summary)
+    return {"valid": True}  # Indicate successful posting
+
 def get_top_10_websites() -> list:
     """Get the top 10 websites from the database.
     
@@ -81,24 +107,37 @@ def validate_critique(critique: str) -> bool:
     return True
 
 def add_website(domain):
+    # Validate the domain
+    if not is_valid_url(domain):
+        print(f"Invalid URL: {domain}")
+        return {"status": "Invalid URL"}
+
+    # Normalize the domain (remove 'www.')
+    domain = normalize_domain(domain)
+
+    # Check if the domain already exists in the collection
+    existing_website = db_api.find_website({"domain": domain}) 
+    if existing_website:
+        print(f"Website already exists in the database: {domain}")
+        return {"status": "Duplicate"}
+    
     document = {
         "domain": domain,
         "rating" : 0.0,
         "aiSummary": ai_description.summarize_comments(domain, ai_description.generate_tags_from_website(domain)),
         "tags": ai_description.generate_tags_from_website(domain),
-        "comments": "comments",
+        "comments": [],
     }
+    
     try:
         db_api.insert_website(document)
         print(f"New website created in the database: {domain}", "Go to Rating Page")
-        return {"status": "Success"}
-    except DuplicateKeyError:
-        print(f"Website already exists in the database")
-        return {"status": "Duplicate"}
     except Exception as e:
         print(f"Error occurred: {e}")
-        # return {"status": "Error", "message": str(e)}
         return {"status": "Error:", "message": str(e)}
+    
+    return {"status": "Success"}
+    
     
 def handle_user_input(domain):
     normalized_url = db_api.is_valid_url(domain)
@@ -117,6 +156,7 @@ def handle_user_input(domain):
         return f"An error occurred: {response.get('message', 'Unknown error')}"
     
 def get_search_suggestions(query):
+    query = normalize_domain(query)
     pipeline = [
         {
             "$search": {
@@ -125,7 +165,7 @@ def get_search_suggestions(query):
                     "query": query,  
                     "path": "domain",  
                     "fuzzy": {         
-                        "maxEdits": 1  # Allow up to 2 character changes
+                        "maxEdits": 1  # Allow up to 1 character changes
                     }
                 }
             }
@@ -141,10 +181,33 @@ def get_search_suggestions(query):
     return [{"domain": result["domain"]} for result in cursor]
 
 def is_valid_url(url):
-  if type(url) is not str or str == "":
-      return False
-  if not url.startswith(("http://", "https://")):
-      test_url = "https://" + url
-  if validators.url(test_url):
-      return True
-  return False
+    # Check for a non-empty string input
+    if not isinstance(url, str) or url.strip() == "":
+        return False
+    print("blahhh")
+
+    # Normalize the URL
+    if not url.__contains__("://"):
+        temp_url = "https://" + url
+
+    # Validate the URL format
+    if not validators.url(temp_url, may_have_port=False):
+        return False
+
+    print("blahh blahhh")
+    # Check if the URL is reachable
+    try:
+        response = requests.head(temp_url, timeout=5)
+        return response.status_code < 400
+    except requests.RequestException:
+        return False
+
+def normalize_domain(domain):
+
+    if domain.startswith("www."):
+        domain = domain[len("www."):]  # Remove the 'www.' prefix
+    if domain.startswith("http://"):
+        domain = domain[len("http://"):] 
+    if domain.startswith("https://"):
+        domain = domain[len("https://"):]
+    return domain
