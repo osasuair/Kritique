@@ -69,17 +69,19 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
         {domain}
       </h1>
 
-      <div className="mb-16 flex flex-col m-auto justify-between w-full h-full">
-          <div className="flex flex-row text-center rounded-md p-2 h-full">
-            <div className="h-full">
+      <div className="mb-16 flex flex-col m-auto justify-between w-full h-max">
+          <div className="flex flex-row text-center rounded-md p-2 h-30">
+            <div className="flex items-center">
               <p className="h-full py-0 px-2 bg-gray-600 text-red-500 text-[50px] font-[700] rounded-md mx-2">
                 {rating.toFixed(1)}
               </p>
             </div>
-            <div>
-              <p className="h-full min-h-full py-auto px-2 bg-gray-600 text-white text-[15px] font-[700] rounded-md mx-2">
-                AI Review:{aiSummary}
-              </p>
+            <div className="flex items-center w-full">
+              <div className="mx-2 px-1 bg-gray-600 py-auto h-full flex w-full flex-row items-center rounded-md">
+                <p className="m-auto text-white text-[15px] font-[700] ">
+                  AI Review: {aiSummary}
+                </p>
+              </div>
             </div>
           </div>
 
