@@ -206,8 +206,7 @@ const Hero = () => {
               )}
             </div>
             <button
-              className={`text-white ${results.length > 0 ? "bg-red-700 hover:bg-red-800": "bg-gray-500 cursor-not-allowed"} rounded-md mt-5 p-2 m-auto`}
-              disabled={query.length === 0}
+              className={`text-white bg-red-700 hover:bg-red-800 rounded-md mt-5 p-2 m-auto`}
               onClick={() => {
                 if (results.length === 0) {
                   addWebsite(query); // If no results, add website
