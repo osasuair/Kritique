@@ -119,7 +119,7 @@ const WebCritique: React.FC<WebCritiqueProps> = ({ data }) => {
 
       <div>
         <h3 className="m-2 p-2 rounded-md text-red-500 font-bold bg-slate-600 shadow-lg shadow-black text-[20px]">
-          Kritiques⚡
+          Kritiques
         </h3>
         <div className="m-2 p-2 ">
           <p className="text-white">Add a new critique</p>
