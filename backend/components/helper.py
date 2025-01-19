@@ -112,6 +112,9 @@ def add_website(domain):
         print(f"Invalid URL: {domain}")
         return {"status": "Invalid URL"}
 
+    # Normalize the domain (remove 'www.')
+    domain = normalize_domain(domain)
+
     # Check if the domain already exists in the collection
     existing_website = db_api.find_website({"domain": domain}) 
     if existing_website:
@@ -153,6 +156,7 @@ def handle_user_input(domain):
         return f"An error occurred: {response.get('message', 'Unknown error')}"
     
 def get_search_suggestions(query):
+    query = normalize_domain(query)
     pipeline = [
         {
             "$search": {
@@ -161,7 +165,7 @@ def get_search_suggestions(query):
                     "query": query,  
                     "path": "domain",  
                     "fuzzy": {         
-                        "maxEdits": 1  # Allow up to 2 character changes
+                        "maxEdits": 1  # Allow up to 1 character changes
                     }
                 }
             }
@@ -180,19 +184,30 @@ def is_valid_url(url):
     # Check for a non-empty string input
     if not isinstance(url, str) or url.strip() == "":
         return False
+    print("blahhh")
 
     # Normalize the URL
-    if not url.startswith(("http://", "https://")):
-        url = "https://" + url
+    if not url.__contains__("://"):
+        temp_url = "https://" + url
 
     # Validate the URL format
-    if not validators.url(url):
+    if not validators.url(temp_url, may_have_port=False):
         return False
 
+    print("blahh blahhh")
     # Check if the URL is reachable
     try:
-        response = requests.head(url, timeout=5)
+        response = requests.head(temp_url, timeout=5)
         return response.status_code < 400
     except requests.RequestException:
         return False
 
+def normalize_domain(domain):
+
+    if domain.startswith("www."):
+        domain = domain[len("www."):]  # Remove the 'www.' prefix
+    if domain.startswith("http://"):
+        domain = domain[len("http://"):] 
+    if domain.startswith("https://"):
+        domain = domain[len("https://"):]
+    return domain

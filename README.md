@@ -28,15 +28,49 @@ Kritique is a web application that provides raw and honest site reviews. Our goa
 
 ---
 
-## Installation
+## Deployed Site
 To go to Kritique, follow these steps:
 
 1. **Cick on URL**:
     ```bash
-    vercel link https://github.com/your-username/kritique.git
+    vercel link -> https://github.com/your-username/kritique.git
     ```
 
 
+
+---
+
+## Installation
+To install Kritique, follow these steps:
+
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/osasuair/Kritique
+    ```
+   - [Kritique Repository](https://github.com/osasuair/Kritique)
+
+
+2. **Install the required dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. **Set up the database MongoDB**:
+    ```bash
+    
+    ```
+   
+
+3. **Populate '.flaskenv' File**
+    ```bash
+    Get GENAI_API_KEY and GROQ_API_KEY
+    Add DB_USERNAME and DB_PASSWORD
+    ```
+
+
+4. **Start the application**:
+    ```bash
+    python manage.py runserver
+    ```
 
 ---
 
