@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Trending from "../components/Trending";
 import WebCritique from "./WebCritique";
+import kritique from "../assets/kritique.png";
 
 const url = "https://kritique.vercel.app";
 
@@ -165,22 +166,25 @@ const Hero = () => {
 
       <div className="w-full h-screen flex flex-col md:flex-row items-center">
         <div className="w-full md:w-2/3 h-[50%] flex flex-col justify-center items-center">
-          <h1 className="m-auto text-red-700 text-[50px] font-sans font-[900]">
-            Kritique✍️
-          </h1>
+          <div className="flex flex-row items-center">
+            <h1 className="m-auto text-red-600 text-[50px] font-sans font-[900] inline-block">
+              Kritique
+            </h1>
+            <img src={kritique} alt="kritique" className="w-14 h-14 inline-block ml-2" />
+          </div>
           <p className="m-auto font-[400] text-[20px] text-white">
             Enter a website you'd like to{" "}
-            <span className="text-red-700">Kritique!</span>
+            <span className="text-red-500">Kritique!</span>
           </p>
-          <div className="w-full h-full flex flex-col items-center">
+          <div className="w-full h-full flex flex-col items-center ">
             <input
-              className="mx-auto w-[80%] mt-10 border-spacing-[10px] border-red-700 rounded-t-md p-2"
+              className="mx-auto w-[80%] mt-10 border-spacing-[10px] shadow-xl shadow-black border-red-700 rounded-t-md p-2 "
               type="text"
               placeholder="Search for a website..."
               value={query}
               onChange={(e) => setQuery(e.target.value)} // Update query on input change
             />
-            <div className="w-[80%] bg-white rounded-b-md shadow-md">
+            <div className="w-[80%] bg-white rounded-b-md shadow-xl shadow-black">
               {loading ? (
                 <div className="p-4 text-gray-500">Loading...</div>
               ) : results.length > 0 ? (
@@ -188,7 +192,7 @@ const Hero = () => {
                   {results.map((result, index) => (
                     <li
                       key={index}
-                      className="px-4 py-2 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
+                      className="px-4 py-2 border-b last:border-b-0 cursor-pointer hover:bg-gray-100 rounded-md"
                       onClick={() => fetchCritique(result.domain)} // Fetch critique on click
                     >
                       {result.domain}
