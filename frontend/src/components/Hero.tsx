@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Trending from "../components/Trending";
 import WebCritique from "./WebCritique";
 
-const url = "https://kritique-deploy.vercel.app";
+const url = "https://kritique.vercel.app";
 
 const options = [
   { value: "www.youtube.com", label: "ww.youtube.com" },
@@ -62,7 +62,26 @@ const Hero = () => {
   const [results, setResults] = useState<{ domain: string }[]>([]); // Track API results
   const [loading, setLoading] = useState<boolean>(false); // Loading state
   const [data, setData] = useState<any>(null); // Store the critique data
+  const [adding, setAdding] = useState<boolean>(false); // Track adding process (e.g. POST request)
+  const [trends, setTrends] = useState<string[]>([]); // Store the trending data
 
+  useEffect(() => {
+    //trends
+    // Fetch critique data for a selected domain
+    const fetchTrends = async () => {
+      try {
+        const response = await fetch(`${url}/get_top_10_websites`);
+        const trendsData = await response.json();
+        setTrends(trendsData); // Store the fetched data in the `trends` variable
+        console.log("Fetched top websites:", trendsData);
+      } catch (error) {
+        console.error("Error fetching top websites:", error);
+        setTrends([]); // Clear data in case of error
+      }
+    };
+
+    fetchTrends();
+  }, []);
   // Debounced function to fetch results from the backend
   useEffect(() => {
     const fetchResults = async () => {
@@ -107,6 +126,31 @@ const Hero = () => {
     }
   };
 
+  //   add a new website
+  const addWebsite = async (domain: string) => {
+    setAdding(true);
+    try {
+      const response = await fetch(`${url}/add_website`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ domain }),
+      });
+      const result = await response.json();
+      if (result.status === "Success") {
+        // Once added, fetch the critique for this domain
+        await fetchCritique(domain);
+      } else {
+        console.error("Failed to add website:", result);
+      }
+    } catch (error) {
+      console.error("Error adding website:", error);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   // Scroll to the WebCritique component when data is updated
   useEffect(() => {
     if (data) {
@@ -129,7 +173,7 @@ const Hero = () => {
           </p>
 
           <input
-            className="m-auto w-[400px] border-spacing-[10px] border-red-700"
+            className="m-auto w-[400px] border-spacing-[10px] border-red-700 rounded-md p-1"
             type="text"
             placeholder="Search for a company..."
             value={query}
@@ -159,13 +203,19 @@ const Hero = () => {
 
           <button
             className="text-white bg-red-700 rounded-md p-2 m-auto"
-            onClick={() => console.log("Search for:", query)} // Add your search action here
+            onClick={() => {
+              if (results.length === 0) {
+                addWebsite(query); // If no results, add website
+              } else {
+                console.log("Search for:", query); // Add your search action here
+              }
+            }}
           >
-            Search
+            {adding ? "Adding..." : "Search"}
           </button>
         </div>
 
-        <Trending />
+        <Trending trends={trends} />
       </div>
 
       {/* Conditionally render WebCritique if data is available */}
