@@ -104,7 +104,10 @@ def validate_comment(comment: str) -> bool:
     )
     
     response = chat_completion.choices[0].message.content
-    print(response)
+    
+    if not "{" in response or not "}" in response:
+        return {"invalid": "error"} 
+    
     # 1. Find the indices of the first and last square brackets
     first_bracket = response.find('{')
     last_bracket = response.rfind('}')

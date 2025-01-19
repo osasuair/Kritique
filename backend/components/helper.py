@@ -28,8 +28,7 @@ def post_critique(comment: dict) -> dict:
     """Post a critique for a website to the database.
     
     Args:
-        website (str): The website for which to post the critique.
-        critique (str): The critique to post.
+        comment (dict): The critique to post.
         
     Returns:
         dict: The critique that was posted.
@@ -42,6 +41,9 @@ def post_critique(comment: dict) -> dict:
     
     # Pre-check if the critique is valid
     validation_result = ai_description.validate_comment(comment['critique'])
+    if not validation_result:
+        return {"valid": False}
+    
     if str(validation_result.get("valid", False)).lower() == "false":  # Use .get() for safety
         return validation_result  # Return the validation result directly
 
@@ -53,8 +55,6 @@ def post_critique(comment: dict) -> dict:
             "time": datetime.datetime.now()
         }
     )
-    if not validation_result:
-        return {"valid": False}
     
     comment_and_rating = db_api.get_comments_and_reviews(website)
     website_rating = comment_and_rating.get("rating", 0)
