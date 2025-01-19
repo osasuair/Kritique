@@ -1,86 +1,65 @@
 # Kritique
-Your one-stop for raw and honest site reviews.
-More...
-
----
-
-## Table of Contents
-- [About](#about)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Acknowledgements](#acknowledgements)
-- [Contact](#contact)
-<!-- - [Changelog](#changelog) -->
+A Vision for the Future of Online Trust. Your one-stop for raw and honest site reviews.
+[Kritique Site](https://kritique-web.vercel.app/)
 
 ---
 
 ## About
-Kritique is a web application that provides raw and honest site reviews. Our goal is to help website owners improve their online presence by providing constructive feedback on their website's design, functionality, and overall user experience.
+Imagine a world where you never again fall victim to a scam website, waste time on a frustrating platform, or miss out on hidden gems online. This is the world Kritique is building.
 
----
+Kritique is not just another review site. It's a revolutionary platform that leverages the power of AI to transform how we understand and interact with the digital world.
+
+Inspired by the need for honest, accessible, and concise reviews, Kritique reimagines the online review experience.
 
 ## Features
-- Get honest and constructive feedback on your website's design, functionality, and overall user experience.
-- Improve your website's online presence and increase user engagement.
-- Get insights on how to improve your website's usability, accessibility, and search engine optimization (SEO).
-- Compare your website's performance with industry benchmarks and best practices.
+### Here's how Kritique surpasses existing platforms:
 
----
+*   **AI-Powered Summarization:** No more sifting through endless comments. Kritique's advanced AI algorithms analyze user reviews and provide concise, insightful summaries, highlighting key strengths and weaknesses.
+*   **Enhanced Trust and Transparency:** Kritique prioritizes authenticity and combats fake reviews through AI-powered verification and user reputation systems, ensuring you can trust the information you find.
+*   **Community-Driven Improvement:** Kritique empowers users to contribute to a safer online environment by reporting suspicious websites and sharing their experiences.
 
-## Deployed Site
-To go to Kritique, follow these steps:
+Kritique is more than just a review site; it's a movement towards a more transparent and trustworthy internet.
 
-1. **Cick on URL**:
-    ```bash
-    vercel link -> https://github.com/your-username/kritique.git
-    ```
+Our vision is to become the go-to platform for online reviews, empowering users with the knowledge they need to make informed decisions and navigate the digital world with confidence.
 
-
-
+### Join us in building a better internet, one Kritique at a time.
 ---
 
 ## Installation
-To install Kritique, follow these steps:
-
 1. **Clone the repository**:
     ```bash
     git clone https://github.com/osasuair/Kritique
     ```
    - [Kritique Repository](https://github.com/osasuair/Kritique)
 
+Want to run it yourself
 
-2. **Install the required dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-3. **Set up the database MongoDB**:
-    ```bash
-    
-    ```
-   
+These instructions will get your Flask application up and running.
 
-3. **Populate '.flaskenv' File**
-    ```bash
-    Get GENAI_API_KEY and GROQ_API_KEY
-    Add DB_USERNAME and DB_PASSWORD
-    ```
+### Backend
+Find out how to run a flask app here --> https://flask.palletsprojects.com/en/stable/quickstart/
 
+You'll need a .flaskenv with
+- GENAI_API_KEY 
+- GROQ_API_KEY
+- DB_USERNAME 
+- DB_PASSWORD
 
-4. **Start the application**:
-    ```bash
-    python manage.py runserver
-    ```
+*** The DB Username and Password are for our MongoDB Cluster, you may also need to switch the mongoDB url ***
+
+### Frontend
+How to run any Vite.js app here --> https://vite.dev/guide/
 
 ---
 
 ## Usage
 To use Kritique, follow these steps:
 
-1. Go to the website and click on the "Get Started" button.
-2. Enter your website's URL and click on the "Submit" button.
-3. Wait for the review to be generated and click on the "View Review" button.
-4. Read and act on the feedback provided to improve your website's online presence.
+1. Go to our [website](https://kritique-web.vercel.app/) and search a website or pick a trending one.
+2. Leave a review
+3. Find out what others are saying or Quick Read the AI summary.
+
+^^ It's that easy!!! ^^
 
 ---
 
@@ -97,4 +76,5 @@ If you have any questions or need help with Kritique:
 
 - Email: [(dannykolz01@gmail.com, osasuair@gmail.com, victor.kolaw@gmail.com)]
 
+Self Link: https://github.com/osasuair/Kritique
 ---
