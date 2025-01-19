@@ -226,7 +226,7 @@ const Hero = () => {
       </div>
 
 {/* from #2c3e50, #000000)"}}> */}
-      <div className={`w-full ${data ? "min-h-screen" : ""} flex flex-col items-center bg-gradient-to-b from-[#2c3e50] to-[#000000]`}>
+      <div className={`w-full ${data ? "min-h-screen" : ""} flex flex-col items-center`}>
         {/* Conditionally render WebCritique if data is available */}
         {data ? <WebCritique data={data[0]} /> : null}
       </div>
