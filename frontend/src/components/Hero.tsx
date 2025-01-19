@@ -170,7 +170,7 @@ const Hero = () => {
             <h1 className="m-auto text-red-600 text-[50px] font-sans font-[900] inline-block">
               Kritique
             </h1>
-            <img src={kritique} alt="kritique" className="w-14 h-14 inline" />
+            <img src={kritique} alt="kritique" className="w-14 h-14 inline-block ml-2" />
           </div>
           <p className="m-auto font-[400] text-[20px] text-white">
             Enter a website you'd like to{" "}
