@@ -160,62 +160,59 @@ const Hero = () => {
   }, [data]);
 
   return (
-    <div className="w-full  flex-col   items-center ">
-      <div className="w-full h-screen flex items-center">
-        <div className=" w-[50%] h-[50%] flex flex-col justify-center items-center">
-          <h1 className="m-auto text-red-700 text-[50px] font-sans font-[900]">
-            Kritique✍️
-          </h1>
+    <div className="w-full flex-col items-center ">
+      
 
+      <div className="w-full h-screen flex flex-col md:flex-row items-center">
+        <div className="w-full md:w-2/3 h-[50%] flex flex-col justify-center items-center">
+          <h1 className="m-auto text-red-700 text-[50px] font-sans font-[900]">Kritique✍️</h1>
           <p className="m-auto font-[400] text-[20px] text-white">
-            Enter a company you'd like to{" "}
-            <span className="text-red-700">Kritique!</span>
+            Enter a website you'd like to <span className="text-red-700">Kritique!</span>
           </p>
-
-          <input
-            className="m-auto w-[400px] border-spacing-[10px] border-red-700 rounded-md p-1"
-            type="text"
-            placeholder="Search for a company..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)} // Update query on input change
-          />
-
-          {/* Results */}
-          <div className="mt-4 w-[400px] bg-white rounded-md shadow-md">
-            {loading ? (
-              <div className="p-4 text-gray-500">Loading...</div>
-            ) : results.length > 0 ? (
-              <ul>
-                {results.map((result, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => fetchCritique(result.domain)} // Fetch critique on click
-                  >
-                    {result.domain}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-4 text-gray-500">No matches</div>
-            )}
+          <div className="w-full h-full flex flex-col items-center">
+            <input
+              className="mx-auto w-[80%] border-spacing-[10px] border-red-700 rounded-t-md p-2"
+              type="text"
+              placeholder="Search for a website..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)} // Update query on input change
+            />
+            <div className="w-[80%] bg-white rounded-b-md shadow-md">
+              {loading ? (
+                <div className="p-4 text-gray-500">Loading...</div>
+              ) : results.length > 0 ? (
+                <ul>
+                  {results.map((result, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 border-b last:border-b-0 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => fetchCritique(result.domain)} // Fetch critique on click
+                    >
+                      {result.domain}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="p-4 text-gray-500">No matches</div>
+              )}
+            </div>
+            <button
+              className="text-white bg-red-700 rounded-md p-2 m-auto"
+              onClick={() => {
+                if (results.length === 0) {
+                  addWebsite(query); // If no results, add website
+                } else {
+                  console.log("Search for:", query); // Add your search action here
+                }
+              }}
+            >
+              {adding ? "Adding..." : "Search"}
+            </button>
           </div>
-
-          <button
-            className="text-white bg-red-700 rounded-md p-2 m-auto"
-            onClick={() => {
-              if (results.length === 0) {
-                addWebsite(query); // If no results, add website
-              } else {
-                console.log("Search for:", query); // Add your search action here
-              }
-            }}
-          >
-            {adding ? "Adding..." : "Search"}
-          </button>
         </div>
-
-        <Trending trends={trends} />
+        <div className="w-10/12 md:w-3/12 m-5 mx-auto">
+          <Trending trends={trends} />
+        </div>
       </div>
 
       {/* Conditionally render WebCritique if data is available */}
