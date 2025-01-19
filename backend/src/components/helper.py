@@ -1,5 +1,7 @@
 from components import db_api, ai_description
 from pymongo.errors import DuplicateKeyError
+import validators
+import datetime
 
 def get_website_critique(website: str) -> dict:
     """Get the critique for a website from the database. 
@@ -13,14 +15,14 @@ def get_website_critique(website: str) -> dict:
     """
     
     # Pre-check if the website is valid
-    if not validate_website(website):
+    if not is_valid_url(website):
         return None
     
     website_critique = db_api.get_website_critique(website)
     
     return website_critique
 
-def post_critique(website: str, critique: str) -> bool:
+def post_critique(comment: dict) -> bool:
     """Post a critique for a website to the database.
     
     Args:
@@ -32,31 +34,36 @@ def post_critique(website: str, critique: str) -> bool:
     """
     
     # Pre-check if the website is valid
-    if not validate_website(website):
+    if not is_valid_url(comment['website']):
         return None
     
     # Pre-check if the critique is valid
-    if not validate_critique(critique):
+    if not validate_critique(comment['critique']):
         return None
     
-    return db_api.add_critique(website, critique)
-
-def validate_website(website: str) -> bool:
-    """Validate a website.
+    return db_api.add_critique(
+        comment['website'], 
+        {
+            "text": comment['critique'],
+            "rating": comment['rating'],
+            "time": datetime.datetime.now()
+        })
     
-    Args:
-        website (str): The website to validate.
-        
+def get_top_10_websites() -> list:
+    """Get the top 10 websites from the database.
+    
     Returns:
-        bool: True if the website is valid, False otherwise.
+        list: The top 10 trending websites based on the number of critiques in the last 24 hours.
     """
     
-    # Pre-check if the website is valid
-    if website is None or website == "":
-        return False
+    top10 = db_api.get_top_10_websites(days=7)
     
-    return True
-
+    top10List = []
+    for website in top10:
+        top10List.append(website["_id"])
+        
+    return top10List
+    
 def validate_critique(critique: str) -> bool:
     """Validate a critique.
     
@@ -132,3 +139,12 @@ def get_search_suggestions(query):
 
     # This convert the cursor to a list of suggestions
     return [{"domain": result["domain"]} for result in cursor]
+
+def is_valid_url(url):
+  if type(url) is not str or str == "":
+      return False
+  if not url.startswith(("http://", "https://")):
+      test_url = "https://" + url
+  if validators.url(test_url):
+      return True
+  return False
