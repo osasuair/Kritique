@@ -123,15 +123,18 @@ def add_website(domain):
         "rating" : 0.0,
         "aiSummary": ai_description.summarize_comments(domain, ai_description.generate_tags_from_website(domain)),
         "tags": ai_description.generate_tags_from_website(domain),
-        "comments": ["comments"],
+        "comments": [],
     }
+    
     try:
         db_api.insert_website(document)
         print(f"New website created in the database: {domain}", "Go to Rating Page")
-        return {"status": "Success"}
     except Exception as e:
         print(f"Error occurred: {e}")
         return {"status": "Error:", "message": str(e)}
+    
+    return {"status": "Success"}
+    
     
 def handle_user_input(domain):
     normalized_url = db_api.is_valid_url(domain)
