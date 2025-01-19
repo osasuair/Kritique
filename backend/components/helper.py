@@ -2,6 +2,7 @@ from components import db_api, ai_description
 from pymongo.errors import DuplicateKeyError
 import validators
 import datetime
+import requests
 
 def get_website_critique(website: str) -> dict:
     """Get the critique for a website from the database. 
@@ -81,23 +82,30 @@ def validate_critique(critique: str) -> bool:
     return True
 
 def add_website(domain):
+    # Validate the domain
+    if not is_valid_url(domain):
+        print(f"Invalid URL: {domain}")
+        return {"status": "Invalid URL"}
+
+    # Check if the domain already exists in the collection
+    existing_website = db_api.find_website({"domain": domain}) 
+    if existing_website:
+        print(f"Website already exists in the database: {domain}")
+        return {"status": "Duplicate"}
+    
     document = {
         "domain": domain,
         "rating" : 0.0,
         "aiSummary": ai_description.summarize_comments(domain, ai_description.generate_tags_from_website(domain)),
         "tags": ai_description.generate_tags_from_website(domain),
-        "comments": "comments",
+        "comments": ["comments"],
     }
     try:
         db_api.insert_website(document)
         print(f"New website created in the database: {domain}", "Go to Rating Page")
         return {"status": "Success"}
-    except DuplicateKeyError:
-        print(f"Website already exists in the database")
-        return {"status": "Duplicate"}
     except Exception as e:
         print(f"Error occurred: {e}")
-        # return {"status": "Error", "message": str(e)}
         return {"status": "Error:", "message": str(e)}
     
 def handle_user_input(domain):
@@ -148,3 +156,24 @@ def is_valid_url(url):
   if validators.url(test_url):
       return True
   return False
+
+def is_valid_url(url):
+    # Check for a non-empty string input
+    if not isinstance(url, str) or url.strip() == "":
+        return False
+
+    # Normalize the URL
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    # Validate the URL format
+    if not validators.url(url):
+        return False
+
+    # Check if the URL is reachable
+    try:
+        response = requests.head(url, timeout=5)
+        return response.status_code < 400
+    except requests.RequestException:
+        return False
+
