@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 from google import genai
 from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
+from groq import Groq
+
 import json
 
 load_dotenv()
@@ -12,6 +14,8 @@ MODEL = 'gemini-2.0-flash-exp'
 google_search_tool = Tool(
     google_search = GoogleSearch()
 )
+
+groqClient = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def summarize_comments(website: str, comments: list[str]) -> str:
     """Summarizes a list of comments about a website using an AI model.
@@ -31,16 +35,26 @@ def summarize_comments(website: str, comments: list[str]) -> str:
     prompt = f"Summarize the following comments for the website [{website}] in the third person with a limit of 30 words: {comments_text}"
     
     # Call the GenAI API to get the summary
-    response = client.models.generate_content(
-        model=MODEL, 
-        contents=prompt, 
-        config=GenerateContentConfig(
-            temperature=0.7,
-            max_output_tokens=100
-        )
+    # response = client.models.generate_content(
+    #     model=MODEL, 
+    #     contents=prompt, 
+    #     config=GenerateContentConfig(
+    #         temperature=0.7,
+    #         max_output_tokens=100
+    #     )
+    # )
+    
+    chat_completion = groqClient.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            }
+        ],
+        model="gemma2-9b-it"
     )
     
-    return response.text
+    return chat_completion.choices[0].message.content
 
 def generate_tags_from_website(website: str) -> list[str]:
     """Generates relevant word-tags describing the purpose of a website using an AI model.
@@ -88,3 +102,38 @@ def generate_tags_from_website(website: str) -> list[str]:
     # 3. Parse the JSON string
     tags = json.loads(json_string)
     return tags
+
+def test_summarizer():
+    # Example usage
+    comments = [
+        "This website is prone to errors.",
+        "The UI of this website is great.",
+        "I love the design but it crashes often.",
+        "The website is slow and unresponsive.",
+        "The navigation is confusing and difficult to use.",
+        "The content is well-written and informative.",
+        "The website is visually appealing and easy to navigate.",
+        "I found the website to be very helpful.",
+        "The website is not user-friendly.",
+        "The website is outdated and needs a redesign.",
+        "The website is full of bugs.",
+        "The website is not compatible with my browser.",
+        "The website is not accessible to people with disabilities.",
+        "The website is not secure.",
+        "The website is a scam.",
+        "I am very satisfied with this website.",
+        "I would recommend this website to others.",
+        "I will definitely use this website again.",
+        "I am not impressed with this website.",
+        "I will not be using this website again."
+    ]
+
+    # assert that the summary is less than 30 words
+    summary = summarize_comments(comments=comments, website="youtube.com")
+    print(summary)
+
+    assert isinstance(summary, str)
+    assert summary != ""
+    assert len(summary.split()) <= 30
+    
+test_summarizer()
