@@ -50,6 +50,10 @@ You'll need a .flaskenv with
 ### Frontend
 How to run any Vite.js app here --> https://vite.dev/guide/
 
+navigate to the /frontend directory in your terminal and run:
+
+- npm install
+- npm run dev
 ---
 
 ## Usage
